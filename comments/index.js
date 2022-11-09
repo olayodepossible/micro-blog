@@ -24,13 +24,13 @@ app.post("/posts/:id/comments", async (req, res) => {
   await axios.post("http://localhost:4005/events", {
     // simple event-bus
     type: "CommentCreated",
-    data: { id: comments, content, postId: req.params.id },
+    data: { id: commentId, comment, postId: req.params.id },
   });
   res.send(comments).status(201);
 });
 
 app.post("/events", (req, res) => {
-  const type = req.body.event.type;
+  const { type } = req.body;
   console.log("Event Type: ", type);
   res.send({ event: type }).status(200);
 });
