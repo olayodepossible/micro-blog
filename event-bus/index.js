@@ -5,14 +5,33 @@ const axios = require("axios");
 const app = express();
 app.use(bodyParser.json());
 
-app.post("/events", (req, res) => {
+app.post("/events", async (req, res) => {
   const event = req.body;
 
-  axios.post("http://localhost:4000/events", event);
-  axios.post("http://localhost:4001/events", event);
-  axios.post("http://localhost:4002/events", event);
+  try {
+    switch (event.type) {
+      case "PostCreated":
+        await axios.post("http://localhost:4002/events", event);
+        break;
+      case "CommentCreated":
+        await axios.post("http://localhost:4002/events", event);
+        await axios.post("http://localhost:4003/events", event);
+        break;
+      case "CommentModerated":
+        await axios.post("http://localhost:4001/events", event);
+        break;
+      case "CommentUpdated":
+        await axios.post("http://localhost:4002/events", event);
+        break;
 
-  res.send({ status: "OK" });
+      default:
+        break;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  res.send({ status: "OK" }).status(200);
 });
 
 app.listen(4005, () => {
